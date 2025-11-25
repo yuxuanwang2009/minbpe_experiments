@@ -62,7 +62,7 @@ def main():
         # print(f"{i+1:2}: ({a!r}, {b!r}) -> {merged!r}")
 
     # match this
-    ids = enc.encode("hello world!!!? (안녕하세요!) 王宇轩王安琪 😉")
+    ids = enc.encode("hello world!!!? (안녕하세요!) 😉")
     text = enc.decode(ids) # get the same text back
     print(ids)
 
