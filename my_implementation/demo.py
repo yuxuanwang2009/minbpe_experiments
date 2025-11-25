@@ -73,7 +73,7 @@ def main():
 
     rt2 = RegexTokenizer(merges, vocab)
     byte_shuffle = {i:enc._mergeable_ranks[bytes([i])] for i in range(256)}
-    ids2 = rt2.encode("hello world!!!? (안녕하세요!) 王宇轩王安琪 😉", byte_shuffle)
+    ids2 = rt2.encode("hello world!!!? (안녕하세요!) 😉", byte_shuffle)
     text2 = rt2.decode(ids2)
     print(ids2)
     text3=[]
