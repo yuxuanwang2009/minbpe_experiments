@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import time
 
 # ensure repo root is on path so my_implementation is importable
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,7 +50,7 @@ def recover_merges(mergeable_ranks):
 
 def main():
     text = (ROOT / "tests/taylorswift.txt").read_text(encoding="utf-8")
-    # print("\n=== RegexTokenizer (20 merges) ===")
+    print("\n=== RegexTokenizer (20 merges) ===")
     rt = RegexTokenizer()
     rt.train(text, vocab_size=276)
     rt_vocab = rt.vocab
@@ -59,12 +60,14 @@ def main():
         a = rt_vocab[pair[0]].decode("utf-8", errors="replace")
         b = rt_vocab[pair[1]].decode("utf-8", errors="replace")
         merged = rt_vocab[new_id].decode("utf-8", errors="replace")
-        # print(f"{i+1:2}: ({a!r}, {b!r}) -> {merged!r}")
+        print(f"{i+1:2}: ({a!r}, {b!r}) -> {merged!r}")
 
+    print("\n=== Match tiktoken results with fast and slow encoding ===")
     # match this
     ids = enc.encode("hello world!!!? (안녕하세요!) 😉")
     text = enc.decode(ids) # get the same text back
     print(ids)
+    print(text)
 
     merges = recover_merges(enc._mergeable_ranks)
     vocab = {enc._mergeable_ranks[bytes([idx])]: bytes([idx]) for idx in range(256)}
@@ -73,12 +76,21 @@ def main():
 
     rt2 = RegexTokenizer(merges, vocab)
     byte_shuffle = {i:enc._mergeable_ranks[bytes([i])] for i in range(256)}
-    ids2 = rt2.encode("hello world!!!? (안녕하세요!) 😉", byte_shuffle)
+    start = time.time()
+    ids1 = rt2.encode("hello world!!!? (안녕하세요!) 😉", byte_shuffle, fast = True)
+    end = time.time()
+    print(f"\n===Fast encoding took {end - start:.4f} seconds ===")
+    text1 = rt2.decode(ids1)
+    print(ids1)
+    print(text1)
+
+
+    start = time.time()
+    ids2 = rt2.encode("hello world!!!? (안녕하세요!) 😉", byte_shuffle, fast = False)
+    end = time.time()
+    print(f"\n===Slow encoding took {end - start:.4f} seconds ===")
     text2 = rt2.decode(ids2)
     print(ids2)
-    text3=[]
-    for id in ids2:
-        text3.append(rt2.decode([id]))
     print(text2)
 
 
